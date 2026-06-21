@@ -2,333 +2,445 @@
 /* =========================
    ELEMENTS
 ========================= */
-const box = document.getElementById("gameBox");
+const gameBox = document.getElementById("gameBox");
 const message = document.getElementById("message");
+const signalType = document.getElementById("signalType");
 
 const startBtn = document.getElementById("startBtn");
-const resetStatsBtn = document.getElementById("resetStats");
 const themeBtn = document.getElementById("themeBtn");
+const resetBtn = document.getElementById("resetStats");
 
-const timeDisplay = document.getElementById("time");
-const bestDisplay = document.getElementById("best");
-const averageDisplay = document.getElementById("average");
-const attemptsDisplay = document.getElementById("attempts");
+const xpBar = document.getElementById("xpBar");
+const xpText = document.getElementById("xpText");
+const levelEl = document.getElementById("level");
+
+const crystalsEl = document.getElementById("crystals");
+const bestEl = document.getElementById("best");
+const avgEl = document.getElementById("average");
+const attemptsEl = document.getElementById("attempts");
+
+const streakEl = document.getElementById("streakCount");
+const comboText = document.getElementById("comboText");
 
 const reactionResult = document.getElementById("reactionResult");
 const rankResult = document.getElementById("rankResult");
 
-const streakCount = document.getElementById("streakCount");
-const streakMsg = document.getElementById("streakMsg");
-
 const historyList = document.getElementById("historyList");
+const achievementsEl = document.getElementById("achievements");
 
-const levelDisplay = document.getElementById("level");
-const xpBar = document.getElementById("xpBar");
-const xpText = document.getElementById("xpText");
+const crateBtn = document.getElementById("crateBtn");
+const crateResult = document.getElementById("crateResult");
 
-const achievementsContainer = document.getElementById("achievements");
+const shareBtn = document.getElementById("shareBtn");
+const soundBtn = document.getElementById("soundBtn");
 
 /* =========================
    GAME STATE
 ========================= */
+let state = "idle";
+let signal = null;
 let startTime = 0;
 let timeout = null;
-let canClick = false;
+
+let combo = 0;
+let streak = 0;
+
+let soundOn = true;
 
 /* =========================
-   LOCAL STORAGE DATA
+   PLAYER DATA
 ========================= */
-let bestTime = Number(localStorage.getItem("bestTime")) || null;
-
-let attempts = Number(localStorage.getItem("attempts")) || 0;
-let totalTime = Number(localStorage.getItem("totalTime")) || 0;
-
-let history = JSON.parse(localStorage.getItem("history")) || [];
-
-let streak = Number(localStorage.getItem("streak")) || 0;
-
-let xp = Number(localStorage.getItem("xp")) || 0;
-let level = Number(localStorage.getItem("level")) || 1;
-
-let achievements = JSON.parse(localStorage.getItem("achievements")) || [];
-
-let currentTheme = localStorage.getItem("theme") || "dark";
+let data = JSON.parse(localStorage.getItem("pulsedata")) || {
+  xp: 0,
+  level: 1,
+  crystals: 0,
+  best: null,
+  attempts: 0,
+  totalTime: 0,
+  history: [],
+  achievements: [],
+  crates: 0
+};
 
 /* =========================
-   INIT UI
+   INIT
 ========================= */
-applyTheme();
-updateStatsUI();
-updateXPUI();
-renderHistory();
+updateUI();
 renderAchievements();
 
 /* =========================
-   START GAME
+   START GAME LOOP
 ========================= */
 startBtn.addEventListener("click", startGame);
 
 function startGame() {
-  resetRound();
+  if (state !== "idle") return;
 
-  message.textContent = "Wait for green...";
-  box.className = "box waiting";
+  state = "waiting";
+  message.textContent = "Get ready...";
+  signalType.textContent = "WAIT";
 
-  canClick = false;
+  gameBox.className = "game-box waiting";
 
-  let delay = Math.random() * 3000 + 1500;
+  let delay = Math.random() * 2500 + 1200;
 
   timeout = setTimeout(() => {
-    box.className = "box ready";
-    message.textContent = "TAP NOW!";
-    startTime = Date.now();
-    canClick = true;
-
-    navigator.vibrate?.(50);
+    generateSignal();
   }, delay);
 }
 
 /* =========================
-   CLICK GAME AREA
+   SIGNAL SYSTEM
 ========================= */
-box.addEventListener("click", handleClick);
+function generateSignal() {
+  let rand = Math.random();
 
-function handleClick() {
-  if (!startTime && !canClick) return;
+  if (rand < 0.4) signal = "green";
+  else if (rand < 0.65) signal = "blue";
+  else if (rand < 0.85) signal = "red";
+  else signal = "gold";
 
-  if (!canClick) {
-    box.className = "box tooSoon";
-    message.textContent = "Too early!";
+  state = "signal";
+  startTime = Date.now();
 
-    streak = 0;
-    saveStreak();
-    updateStreakUI();
+  switch(signal){
+    case "green":
+      signalType.textContent = "🟢 TAP!";
+      gameBox.className = "game-box ready";
+      break;
 
-    clearTimeout(timeout);
-    return;
+    case "blue":
+      signalType.textContent = "🔵 DOUBLE TAP!";
+      gameBox.className = "game-box double";
+      break;
+
+    case "red":
+      signalType.textContent = "🔴 DON'T TAP!";
+      gameBox.className = "game-box danger";
+      break;
+
+    case "gold":
+      signalType.textContent = "🟡 BONUS!";
+      gameBox.className = "game-box bonus";
+      break;
   }
 
-  let reactionTime = Date.now() - startTime;
-
-  timeDisplay.textContent = reactionTime;
-
-  // RESULT CARD
-  reactionResult.textContent = `${reactionTime} ms`;
-  rankResult.textContent = getRank(reactionTime);
-
-  // STATS
-  attempts++;
-  totalTime += reactionTime;
-
-  saveStats();
-
-  // HISTORY
-  history.unshift(reactionTime);
-  if (history.length > 10) history.pop();
-  localStorage.setItem("history", JSON.stringify(history));
-  renderHistory();
-
-  // BEST SCORE
-  if (!bestTime || reactionTime < bestTime) {
-    bestTime = reactionTime;
-    localStorage.setItem("bestTime", bestTime);
-  }
-
-  // STREAK
-  updateStreak(reactionTime);
-
-  // XP
-  addXP(reactionTime);
-
-  // RESET ROUND
-  canClick = false;
-  startTime = 0;
-
-  message.textContent = "Click Start to try again";
-  box.className = "box waiting";
-
-  updateStatsUI();
-  updateXPUI();
+  vibrate(50);
 }
 
 /* =========================
-   STREAK SYSTEM
+   GAME CLICK
 ========================= */
-function updateStreak(time) {
-  if (time < 250) {
+gameBox.addEventListener("click", handleAction);
+
+function handleAction(){
+
+  if(state !== "signal") return;
+
+  let reaction = Date.now() - startTime;
+
+  let reward = 0;
+  let correct = false;
+
+  // GREEN
+  if(signal === "green"){
+    reward = 5;
+    correct = true;
+    showResult(reaction, "⚡ Good");
+  }
+
+  // BLUE
+  else if(signal === "blue"){
+    reward = 10;
+    correct = true;
+    showResult(reaction, "🔥 Perfect");
+  }
+
+  // RED (DON'T TAP)
+  else if(signal === "red"){
+    reward = 8;
+    correct = false;
+    penalty("Wrong Tap!");
+  }
+
+  // GOLD
+  else if(signal === "gold"){
+    reward = 20;
+    data.crystals += 5;
+    correct = true;
+    showResult(reaction, "💎 Bonus!");
+  }
+
+  applyReward(reward, reaction, correct);
+}
+
+/* =========================
+   REWARD ENGINE
+========================= */
+function applyReward(xpGain, reaction, correct){
+
+  state = "result";
+
+  data.xp += xpGain;
+  data.attempts++;
+  data.totalTime += reaction;
+
+  if(correct){
+    combo++;
     streak++;
   } else {
+    combo = 0;
     streak = 0;
   }
 
-  saveStreak();
-  updateStreakUI();
-}
+  if(combo >= 3) data.xp += 10;
+  if(combo >= 5) data.xp += 20;
+  if(combo >= 10) data.xp += 50;
 
-function updateStreakUI() {
-  streakCount.textContent = streak;
-
-  if (streak >= 10) {
-    streakMsg.textContent = "🔥 UNSTOPPABLE!";
-  } else if (streak >= 5) {
-    streakMsg.textContent = "⚡ ON FIRE!";
-  } else if (streak >= 3) {
-    streakMsg.textContent = "🚀 Building momentum...";
-  } else {
-    streakMsg.textContent = "Keep going...";
-  }
-}
-
-function saveStreak() {
-  localStorage.setItem("streak", streak);
-}
-
-/* =========================
-   XP SYSTEM
-========================= */
-function addXP(time) {
-  let gained = 5;
-
-  if (time < 200) {
-    gained += 10;
+  if(data.best === null || reaction < data.best){
+    data.best = reaction;
   }
 
-  xp += gained;
+  data.history.unshift(reaction);
+  if(data.history.length > 10) data.history.pop();
 
-  let required = level * 100;
+  checkLevelUp();
+  checkAchievements();
+  save();
 
-  if (xp >= required) {
-    xp -= required;
-    level++;
+  updateUI();
+  renderHistory();
 
-    showLevelUp();
+  setTimeout(resetRound, 900);
+}
+
+/* =========================
+   PENALTY
+========================= */
+function penalty(text){
+  combo = 0;
+  streak = 0;
+  vibrate(120);
+  showPopup("❌ " + text);
+}
+
+/* =========================
+   LEVEL SYSTEM
+========================= */
+function checkLevelUp(){
+
+  let required = data.level * 100;
+
+  if(data.xp >= required){
+    data.xp -= required;
+    data.level++;
+
+    data.crystals += 10;
+
+    showPopup("⭐ Level Up!");
+    vibrate([80,50,80]);
   }
-
-  localStorage.setItem("xp", xp);
-  localStorage.setItem("level", level);
-}
-
-function updateXPUI() {
-  let required = level * 100;
-  let percent = (xp / required) * 100;
-
-  xpBar.style.width = `${percent}%`;
-  xpText.textContent = `${xp} / ${required} XP`;
-  levelDisplay.textContent = level;
-}
-
-function showLevelUp() {
-  alert(`Level Up! You are now Level ${level}`);
-  navigator.vibrate?.([100, 50, 100]);
-}
-
-/* =========================
-   RANK SYSTEM
-========================= */
-function getRank(time) {
-  if (time < 150) return "⚡ Lightning";
-  if (time < 200) return "🔥 Elite";
-  if (time < 250) return "🚀 Fast";
-  if (time < 300) return "👍 Good";
-  return "🌱 Beginner";
-}
-
-/* =========================
-   HISTORY
-========================= */
-function renderHistory() {
-  historyList.innerHTML = "";
-
-  history.forEach(t => {
-    const div = document.createElement("div");
-    div.className = "history-item";
-    div.textContent = `${t} ms`;
-    historyList.appendChild(div);
-  });
-}
-
-/* =========================
-   STATS
-========================= */
-function saveStats() {
-  localStorage.setItem("attempts", attempts);
-  localStorage.setItem("totalTime", totalTime);
-}
-
-function updateStatsUI() {
-  attemptsDisplay.textContent = attempts;
-
-  bestDisplay.textContent = bestTime || "--";
-
-  averageDisplay.textContent =
-    attempts > 0
-      ? Math.round(totalTime / attempts)
-      : "--";
 }
 
 /* =========================
    ACHIEVEMENTS
 ========================= */
-function unlockAchievement(name) {
-  if (achievements.includes(name)) return;
+function checkAchievements(){
 
-  achievements.push(name);
-
-  localStorage.setItem(
-    "achievements",
-    JSON.stringify(achievements)
-  );
-
-  renderAchievements();
+  unlock("First Steps", data.attempts >= 1);
+  unlock("Speed Runner", data.best && data.best < 200);
+  unlock("Combo x5", combo >= 5);
+  unlock("Crystal Collector", data.crystals >= 50);
+  unlock("Veteran", data.attempts >= 50);
 }
 
-function renderAchievements() {
-  achievementsContainer.innerHTML = "";
+function unlock(name, condition){
 
-  achievements.forEach(a => {
-    const div = document.createElement("div");
-    div.className = "achievement-badge";
-    div.textContent = a;
-    achievementsContainer.appendChild(div);
+  if(!condition) return;
+
+  if(!data.achievements.includes(name)){
+    data.achievements.push(name);
+    showPopup("🏆 " + name);
+    renderAchievements();
+  }
+}
+
+/* =========================
+   CRATE SYSTEM
+========================= */
+crateBtn.addEventListener("click", openCrate);
+
+function openCrate(){
+
+  if(data.crystals < 50){
+    crateResult.textContent = "Not enough crystals";
+    return;
+  }
+
+  data.crystals -= 50;
+
+  let roll = Math.random();
+
+  if(roll < 0.4){
+    data.xp += 25;
+    crateResult.textContent = "+25 XP";
+  }
+  else if(roll < 0.7){
+    data.xp += 50;
+    crateResult.textContent = "+50 XP";
+  }
+  else if(roll < 0.9){
+    data.crystals += 10;
+    crateResult.textContent = "+10 Crystals";
+  }
+  else{
+    combo = 1;
+    crateResult.textContent = "Combo Shield!";
+  }
+
+  save();
+  updateUI();
+}
+
+/* =========================
+   UI SYSTEM
+========================= */
+function updateUI(){
+
+  levelEl.textContent = data.level;
+  crystalsEl.textContent = data.crystals;
+
+  bestEl.textContent = data.best || "--";
+
+  let avg = data.attempts
+    ? Math.round(data.totalTime / data.attempts)
+    : 0;
+
+  avgEl.textContent = avg;
+
+  attemptsEl.textContent = data.attempts;
+
+  streakEl.textContent = streak;
+
+  comboText.textContent = "⚡ COMBO x" + combo;
+
+  let req = data.level * 100;
+  let percent = (data.xp / req) * 100;
+
+  xpBar.style.width = percent + "%";
+  xpText.textContent = `${data.xp} / ${req} XP`;
+}
+
+/* =========================
+   HISTORY
+========================= */
+function renderHistory(){
+
+  historyList.innerHTML = "";
+
+  data.history.forEach(t => {
+
+    let div = document.createElement("div");
+    div.className = "history-item";
+    div.textContent = `${t} ms`;
+
+    historyList.appendChild(div);
   });
 }
 
 /* =========================
-   THEME SYSTEM
+   ACHIEVEMENTS UI
 ========================= */
-const themes = ["dark", "light", "neon"];
+function renderAchievements(){
 
-themeBtn.addEventListener("click", () => {
-  document.body.classList.remove(
-    "theme-dark",
-    "theme-light",
-    "theme-neon"
-  );
+  achievementsEl.innerHTML = "";
 
-  let index = themes.indexOf(currentTheme);
-  currentTheme = themes[(index + 1) % themes.length];
+  data.achievements.forEach(a => {
 
-  applyTheme();
+    let div = document.createElement("div");
+    div.className = "achievement-badge";
+    div.textContent = a;
 
-  localStorage.setItem("theme", currentTheme);
-});
-
-function applyTheme() {
-  document.body.classList.add(`theme-${currentTheme}`);
+    achievementsEl.appendChild(div);
+  });
 }
 
 /* =========================
    RESET
 ========================= */
-resetStatsBtn.addEventListener("click", () => {
-  localStorage.clear();
+resetBtn.addEventListener("click", () => {
+
+  localStorage.removeItem("pulsedata");
   location.reload();
+
 });
 
 /* =========================
-   ROUND RESET
+   SHARE
 ========================= */
-function resetRound() {
-  clearTimeout(timeout);
-  timeDisplay.textContent = "--";
-    }
+shareBtn.addEventListener("click", () => {
+
+  let text = `I scored ${data.best || 0}ms on PulseTap ⚡`;
+
+  navigator.clipboard.writeText(text);
+
+  showPopup("Copied!");
+});
+
+/* =========================
+   SOUND TOGGLE
+========================= */
+soundBtn.addEventListener("click", () => {
+
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔊 Sound" : "🔇 Muted";
+
+});
+
+/* =========================
+   HELPERS
+========================= */
+function showResult(time, text){
+
+  reactionResult.textContent = `${time} ms`;
+  rankResult.textContent = text;
+
+}
+
+function resetRound(){
+
+  state = "idle";
+  signal = null;
+
+  gameBox.className = "game-box waiting";
+  signalType.textContent = "Ready";
+  message.textContent = "Press Play";
+
+}
+
+function showPopup(text){
+
+  const popup = document.getElementById("popup");
+  const popupText = document.getElementById("popupText");
+
+  popupText.textContent = text;
+
+  popup.classList.remove("hidden");
+
+  setTimeout(() => {
+    popup.classList.add("hidden");
+  }, 1200);
+
+}
+
+function vibrate(pattern){
+  if(!navigator.vibrate) return;
+  navigator.vibrate(pattern);
+}
+
+/* =========================
+   SAVE
+========================= */
+function save(){
+  localStorage.setItem("pulsedata", JSON.stringify(data));
+     }
