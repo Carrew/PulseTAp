@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PulseTap</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<body class="theme-dark">
 
-<body>
+<div class="container">
 
-  <div class="container">
+  <!-- HEADER -->
+  <header class="top-bar">
+    <div>
+      <h1>⚡ PulseTap</h1>
+      <p>Reflexes • Focus • Strategy</p>
+    </div>
 
-    <!-- TITLE -->
-    <h1>PulseTap</h1>
-    <p class="subtitle">Test your reflexes. Beat yourself.</p>
+    <button id="themeBtn">🎨 Theme</button>
+  </header>
 
-    <!-- XP SYSTEM -->
-    <div class="xp-container">
-      <p>⭐ Level <span id="level">1</span></p>
+  <!-- PLAYER PROGRESS -->
+  <section class="player-panel">
+
+    <div class="level-card">
+      <h3>⭐ Level <span id="level">1</span></h3>
 
       <div class="xp-bar-bg">
         <div id="xpBar" class="xp-bar"></div>
@@ -26,52 +33,210 @@
       <p id="xpText">0 / 100 XP</p>
     </div>
 
-    <!-- GAME AREA -->
-    <div id="gameBox" class="box waiting">
-      <p id="message">Click Start</p>
+    <div class="currency-card">
+      <h3>💎 Crystals</h3>
+      <p id="crystals">0</p>
     </div>
 
-    <!-- MAIN CONTROLS -->
-    <div class="controls">
-      <button id="startBtn">Start</button>
-      <button id="resetStats">Reset Stats</button>
-      <button id="themeBtn">🎨 Theme</button>
+  </section>
+
+  <!-- DAILY CHALLENGE -->
+  <section class="daily-card">
+
+    <h3>🎯 Daily Challenge</h3>
+
+    <p id="dailyChallenge">
+      Score below 180ms
+    </p>
+
+    <div class="challenge-progress">
+      <span id="challengeProgress">
+        0 / 1
+      </span>
     </div>
 
-    <!-- STATS -->
-    <div class="stats">
-      <p>⏱ Your Time: <span id="time">--</span> ms</p>
-      <p>🏆 Best: <span id="best">--</span> ms</p>
-      <p>📊 Average: <span id="average">--</span> ms</p>
-      <p>🎯 Attempts: <span id="attempts">0</span></p>
+  </section>
+
+  <!-- COMBO SECTION -->
+  <section class="combo-card">
+
+    <h2 id="comboText">
+      ⚡ COMBO x0
+    </h2>
+
+    <p id="comboReward">
+      Build a streak for bonus XP
+    </p>
+
+  </section>
+
+  <!-- MAIN GAME AREA -->
+  <section
+    id="gameBox"
+    class="game-box waiting">
+
+    <div class="signal-container">
+
+      <h2 id="signalType">
+        Ready
+      </h2>
+
+      <p id="message">
+        Press Start
+      </p>
+
     </div>
 
-    <!-- RESULT CARD -->
-    <div class="result-card">
-      <h2 id="reactionResult">--</h2>
-      <p id="rankResult">Start playing</p>
+  </section>
+
+  <!-- RESULT -->
+  <section class="result-card">
+
+    <h2 id="reactionResult">
+      --
+    </h2>
+
+    <p id="rankResult">
+      Start playing
+    </p>
+
+  </section>
+
+  <!-- CONTROLS -->
+  <section class="controls">
+
+    <button id="startBtn">
+      ▶ Start
+    </button>
+
+    <button id="shareBtn">
+      📤 Share
+    </button>
+
+    <button id="soundBtn">
+      🔊 Sound
+    </button>
+
+    <button id="resetStats">
+      🗑 Reset
+    </button>
+
+  </section>
+
+  <!-- REWARDS -->
+  <section class="reward-card">
+
+    <h3>🎁 Reward Crate</h3>
+
+    <button id="crateBtn">
+      Open Crate
+    </button>
+
+    <p id="crateResult">
+      Earn crates by playing
+    </p>
+
+  </section>
+
+  <!-- LIVE STATS -->
+  <section class="stats-grid">
+
+    <div class="stat">
+      <span>🏆 Best</span>
+      <strong id="best">--</strong>
     </div>
 
-    <!-- STREAK -->
-    <div class="streak">
-      <p>⚡ Streak: <span id="streakCount">0</span></p>
-      <p id="streakMsg">Start playing...</p>
+    <div class="stat">
+      <span>📊 Average</span>
+      <strong id="average">--</strong>
     </div>
 
-    <!-- RECENT HISTORY -->
-    <div class="history">
-      <h3>📊 Recent Attempts</h3>
-      <div id="historyList"></div>
+    <div class="stat">
+      <span>🎯 Attempts</span>
+      <strong id="attempts">0</strong>
     </div>
 
-    <!-- ACHIEVEMENTS -->
-    <div class="achievement-section">
-      <h3>🏆 Achievements</h3>
-      <div id="achievements"></div>
+    <div class="stat">
+      <span>🔥 Streak</span>
+      <strong id="streakCount">0</strong>
     </div>
+
+  </section>
+
+  <!-- SIGNAL GUIDE -->
+  <section class="guide-card">
+
+    <h3>📖 Signals</h3>
+
+    <ul>
+
+      <li>
+        🟢 Green → Tap Once
+      </li>
+
+      <li>
+        🔵 Blue → Double Tap
+      </li>
+
+      <li>
+        🔴 Red → Don't Tap
+      </li>
+
+      <li>
+        🟡 Gold → Bonus XP
+      </li>
+
+    </ul>
+
+  </section>
+
+  <!-- HISTORY -->
+  <section class="history-card">
+
+    <h3>📈 Recent Attempts</h3>
+
+    <div id="historyList">
+
+    </div>
+
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section class="achievement-section">
+
+    <h3>🏆 Achievements</h3>
+
+    <div id="achievements">
+
+    </div>
+
+  </section>
+
+  <!-- NOTIFICATION POPUP -->
+  <div id="popup" class="popup hidden">
+
+    <span id="popupText">
+      Achievement Unlocked!
+    </span>
 
   </div>
 
-  <script src="script.js"></script>
+  <!-- FOOTER -->
+  <footer>
+
+    <p>
+      Built with HTML, CSS & JavaScript
+    </p>
+
+    <p>
+      PulseTap v2.0
+    </p>
+
+  </footer>
+
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
