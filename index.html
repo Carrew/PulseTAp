@@ -1,1 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PulseTap</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+  <div class="container">
+    <h1>PulseTap</h1>
+    <p class="subtitle">Tap when the screen turns green</p>
+
+    <div id="gameBox" class="box waiting">
+      <p id="message">Click Start</p>
+    </div>
+
+    <button id="startBtn">Start</button>
+
+    <div class="stats">
+      <p>⏱ Your Time: <span id="time">--</span> ms</p>
+      <p>🏆 Best: <span id="best">--</span> ms</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
