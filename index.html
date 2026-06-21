@@ -6,6 +6,7 @@
   <title>PulseTap</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="theme-dark">
 
 <div class="container">
@@ -45,45 +46,31 @@
 
     <h3>🎯 Daily Challenge</h3>
 
-    <p id="dailyChallenge">
-      Score below 180ms
-    </p>
+    <p id="dailyChallenge">Score below 180ms</p>
 
     <div class="challenge-progress">
-      <span id="challengeProgress">
-        0 / 1
-      </span>
+      <span id="challengeProgress">0 / 1</span>
     </div>
 
   </section>
 
-  <!-- COMBO SECTION -->
+  <!-- COMBO -->
   <section class="combo-card">
 
-    <h2 id="comboText">
-      ⚡ COMBO x0
-    </h2>
+    <h2 id="comboText">⚡ COMBO x0</h2>
 
-    <p id="comboReward">
-      Build a streak for bonus XP
-    </p>
+    <p id="comboReward">Build a streak for bonus XP</p>
 
   </section>
 
-  <!-- MAIN GAME AREA -->
-  <section
-    id="gameBox"
-    class="game-box waiting">
+  <!-- GAME AREA -->
+  <section id="gameBox" class="game-box waiting">
 
     <div class="signal-container">
 
-      <h2 id="signalType">
-        Ready
-      </h2>
+      <h2 id="signalType">Ready</h2>
 
-      <p id="message">
-        Press Start
-      </p>
+      <p id="message">Press Play</p>
 
     </div>
 
@@ -92,53 +79,37 @@
   <!-- RESULT -->
   <section class="result-card">
 
-    <h2 id="reactionResult">
-      --
-    </h2>
+    <h2 id="reactionResult">--</h2>
 
-    <p id="rankResult">
-      Start playing
-    </p>
+    <p id="rankResult">Start playing</p>
 
   </section>
 
   <!-- CONTROLS -->
   <section class="controls">
 
-    <button id="startBtn">
-      ▶ Start
-    </button>
+    <button id="startBtn">▶ Play</button>
 
-    <button id="shareBtn">
-      📤 Share
-    </button>
+    <button id="shareBtn">📤 Share</button>
 
-    <button id="soundBtn">
-      🔊 Sound
-    </button>
+    <button id="soundBtn">🔊 Sound</button>
 
-    <button id="resetStats">
-      🗑 Reset
-    </button>
+    <button id="resetStats">🗑 Reset</button>
 
   </section>
 
-  <!-- REWARDS -->
+  <!-- REWARDS / CRATES -->
   <section class="reward-card">
 
     <h3>🎁 Reward Crate</h3>
 
-    <button id="crateBtn">
-      Open Crate
-    </button>
+    <button id="crateBtn">Open Crate</button>
 
-    <p id="crateResult">
-      Earn crates by playing
-    </p>
+    <p id="crateResult">Earn crates by playing</p>
 
   </section>
 
-  <!-- LIVE STATS -->
+  <!-- STATS -->
   <section class="stats-grid">
 
     <div class="stat">
@@ -161,6 +132,16 @@
       <strong id="streakCount">0</strong>
     </div>
 
+    <div class="stat">
+      <span>💎 Total Earned</span>
+      <strong id="totalCrystals">0</strong>
+    </div>
+
+    <div class="stat">
+      <span>⭐ XP Earned</span>
+      <strong id="totalXpEarned">0</strong>
+    </div>
+
   </section>
 
   <!-- SIGNAL GUIDE -->
@@ -169,23 +150,10 @@
     <h3>📖 Signals</h3>
 
     <ul>
-
-      <li>
-        🟢 Green → Tap Once
-      </li>
-
-      <li>
-        🔵 Blue → Double Tap
-      </li>
-
-      <li>
-        🔴 Red → Don't Tap
-      </li>
-
-      <li>
-        🟡 Gold → Bonus XP
-      </li>
-
+      <li>🟢 Green → Tap Once</li>
+      <li>🔵 Blue → Double Tap</li>
+      <li>🔴 Red → Don't Tap</li>
+      <li>🟡 Gold → Bonus XP</li>
     </ul>
 
   </section>
@@ -195,9 +163,7 @@
 
     <h3>📈 Recent Attempts</h3>
 
-    <div id="historyList">
-
-    </div>
+    <div id="historyList"></div>
 
   </section>
 
@@ -206,32 +172,27 @@
 
     <h3>🏆 Achievements</h3>
 
-    <div id="achievements">
-
-    </div>
+    <div id="achievements"></div>
 
   </section>
 
-  <!-- NOTIFICATION POPUP -->
+  <!-- POPUPS -->
   <div id="popup" class="popup hidden">
-
-    <span id="popupText">
-      Achievement Unlocked!
-    </span>
-
+    <span id="popupText">Achievement Unlocked!</span>
   </div>
+
+  <div id="levelUpModal" class="popup hidden">
+    <span id="levelUpText">Level Up!</span>
+  </div>
+
+  <!-- GAME STATE (hidden control layer) -->
+  <div id="gameState" style="display:none">idle</div>
+  <div id="signalHint" style="display:none"></div>
 
   <!-- FOOTER -->
   <footer>
-
-    <p>
-      Built with HTML, CSS & JavaScript
-    </p>
-
-    <p>
-      PulseTap v2.0
-    </p>
-
+    <p>Built with HTML • CSS • JavaScript</p>
+    <p>PulseTap v3 Hybrid</p>
   </footer>
 
 </div>
